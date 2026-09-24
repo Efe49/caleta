@@ -1,0 +1,15 @@
+services:
+  alba:
+    build: .
+    ports:
+      - "4730:3000"
+    environment:
+      DATABASE_PATH: /app/data/alba.db
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+    volumes:
+      - alba-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  alba-data:
