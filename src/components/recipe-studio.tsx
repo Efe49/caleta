@@ -20,8 +20,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { NamedSelectValue } from "@/components/named-select-value";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import {
   addRecipeLineAction,
   deleteCandleAction,
@@ -38,8 +39,8 @@ export function RecipeStudio({ candle, products }: { candle: CandleType; product
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [name, setName] = useState(candle.name);
-  const [percent, setPercent] = useState(String(candle.marginPercent));
-  const [fixed, setFixed] = useState(String(candle.marginFixed));
+  const [percent, setPercent] = useState(() => (candle.marginPercent > 0 ? String(candle.marginPercent) : ""));
+  const [fixed, setFixed] = useState(() => (candle.marginPercent > 0 ? "" : candle.marginFixed > 0 ? String(candle.marginFixed) : ""));
   const [batch, setBatch] = useState("1");
   const [productId, setProductId] = useState("");
   const [lineQty, setLineQty] = useState("1");
@@ -67,13 +68,25 @@ export function RecipeStudio({ candle, products }: { candle: CandleType; product
     });
   }, [products, candle.lines, qtyByLine, percent, fixed, batch]);
 
+  function changePercent(value: string) {
+    setPercent(value);
+    if (value.trim() !== "") setFixed("");
+  }
+
+  function changeFixed(value: string) {
+    setFixed(value);
+    if (value.trim() !== "") setPercent("");
+  }
+
   function saveFicha() {
-    const marginPercent = parseDecimal(percent);
-    const marginFixed = parseDecimal(fixed);
-    if (marginPercent == null || marginFixed == null) {
-      setError("Escribe los dos márgenes con números.");
+    const parsedPercent = percent.trim() === "" ? 0 : parseDecimal(percent);
+    const parsedFixed = fixed.trim() === "" ? 0 : parseDecimal(fixed);
+    if (parsedPercent == null || parsedFixed == null || parsedPercent < 0 || parsedFixed < 0) {
+      setError("Escribe el margen con un número. Puedes dejar el otro vacío.");
       return;
     }
+    const marginPercent = parsedPercent > 0 ? parsedPercent : 0;
+    const marginFixed = parsedPercent > 0 ? 0 : parsedFixed;
     setError(null);
     startTransition(async () => {
       const result = await updateCandleAction(candle.id, { name, marginPercent, marginFixed });
@@ -201,29 +214,31 @@ export function RecipeStudio({ candle, products }: { candle: CandleType; product
           <Card>
             <CardHeader>
               <CardTitle>Ficha</CardTitle>
-              <CardDescription>El precio se recalcula al cambiar los márgenes, aunque todavía no guardes.</CardDescription>
+              <CardDescription>
+                Un margen en porcentaje o un importe fijo. Si rellenas uno, el otro se vacía. Ninguno es obligatorio.
+              </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3">
               <Field label="Nombre" htmlFor="recipe-name">
                 <Input id="recipe-name" className="h-10" value={name} onChange={(event) => setName(event.target.value)} />
               </Field>
               <div className="grid gap-3 sm:grid-cols-2">
-                <Field label="Margen (%)" htmlFor="margin-percent" hint="Se aplica sobre el coste.">
+                <Field label="Margen (%)" htmlFor="margin-percent" hint="Si lo rellenas, el margen fijo se vacía.">
                   <Input
                     id="margin-percent"
                     inputMode="decimal"
                     className="h-10"
                     value={percent}
-                    onChange={(event) => setPercent(event.target.value)}
+                    onChange={(event) => changePercent(event.target.value)}
                   />
                 </Field>
-                <Field label="Margen fijo (€)" htmlFor="margin-fixed" hint="Euros que sumas a cada vela.">
+                <Field label="Margen fijo (€)" htmlFor="margin-fixed" hint="Si lo rellenas, el porcentaje se vacía.">
                   <Input
                     id="margin-fixed"
                     inputMode="decimal"
                     className="h-10"
                     value={fixed}
-                    onChange={(event) => setFixed(event.target.value)}
+                    onChange={(event) => changeFixed(event.target.value)}
                   />
                 </Field>
               </div>
@@ -299,9 +314,19 @@ export function RecipeStudio({ candle, products }: { candle: CandleType; product
               ) : (
                 <div className="grid gap-3 border-t border-border pt-4">
                   <Field label="Añadir producto" htmlFor="add-product">
-                    <Select value={productId} onValueChange={(value) => setProductId(value ?? "")}>
+                    <Select
+                      value={productId}
+                      onValueChange={(value) => setProductId(value ?? "")}
+                      items={Object.fromEntries(products.map((product) => [String(product.id), product.name]))}
+                      itemToStringLabel={(value) =>
+                        products.find((product) => String(product.id) === String(value))?.name ?? "Producto"
+                      }
+                    >
                       <SelectTrigger id="add-product" className="h-10 w-full">
-                        <SelectValue placeholder="Elige cera, mecha, vaso o un molde" />
+                        <NamedSelectValue
+                          placeholder="Elige cera, mecha, vaso o un molde"
+                          labelFor={(value) => products.find((product) => String(product.id) === value)?.name}
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {available.map((product) => (

@@ -27,8 +27,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { NamedSelectValue } from "@/components/named-select-value";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import {
   createCategoryAction,
   createProductAction,
@@ -40,6 +41,11 @@ import {
 } from "@/app/actions";
 import { formatEuro, formatQty, parseDecimal } from "@/lib/format";
 import { KIND_LABEL, UNITS, type Category, type CategoryKind, type Product } from "@/lib/types";
+
+const KIND_OPTIONS: Record<CategoryKind, string> = {
+  fijo: "Activo fijo (se amortiza)",
+  consumible: "Consumible (cera, mecha, envase…)",
+};
 
 export function StockManager({
   categories,
@@ -312,13 +318,21 @@ function CategoryForm({ category, onClose }: { category: Category | null; onClos
         <Input id="category-name" className="h-10" value={name} onChange={(event) => setName(event.target.value)} />
       </Field>
       <Field label="Tipo" htmlFor="category-kind">
-        <Select value={kind} onValueChange={(value) => value && setKind(value as CategoryKind)}>
+        <Select
+          value={kind}
+          onValueChange={(value) => value && setKind(value as CategoryKind)}
+          items={KIND_OPTIONS}
+          itemToStringLabel={(value) => KIND_OPTIONS[value as CategoryKind] ?? "Tipo"}
+        >
           <SelectTrigger id="category-kind" className="h-10 w-full">
-            <SelectValue />
+            <NamedSelectValue
+              placeholder="Elige un tipo"
+              labelFor={(value) => KIND_OPTIONS[value as CategoryKind]}
+            />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="fijo">Activo fijo (se amortiza)</SelectItem>
-            <SelectItem value="consumible">Consumible (cera, mecha, envase…)</SelectItem>
+            <SelectItem value="fijo">{KIND_OPTIONS.fijo}</SelectItem>
+            <SelectItem value="consumible">{KIND_OPTIONS.consumible}</SelectItem>
           </SelectContent>
         </Select>
       </Field>
@@ -404,9 +418,19 @@ function ProductForm({
           <Input id="product-name" className="h-10" value={name} onChange={(event) => setName(event.target.value)} />
         </Field>
         <Field label="Categoría" htmlFor="product-category">
-          <Select value={categoryId} onValueChange={(value) => value && setCategoryId(value)}>
+          <Select
+            value={categoryId}
+            onValueChange={(value) => value && setCategoryId(value)}
+            items={Object.fromEntries(categories.map((category) => [String(category.id), category.name]))}
+            itemToStringLabel={(value) =>
+              categories.find((category) => String(category.id) === String(value))?.name ?? "Categoría"
+            }
+          >
             <SelectTrigger id="product-category" className="h-10 w-full">
-              <SelectValue placeholder="Elige una categoría" />
+              <NamedSelectValue
+                placeholder="Elige una categoría"
+                labelFor={(value) => categories.find((category) => String(category.id) === value)?.name}
+              />
             </SelectTrigger>
             <SelectContent>
               {categories.map((category) => (
@@ -419,9 +443,17 @@ function ProductForm({
         </Field>
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Unidad" htmlFor="product-unit">
-            <Select value={unit} onValueChange={(value) => value && setUnit(value)}>
+            <Select
+              value={unit}
+              onValueChange={(value) => value && setUnit(value)}
+              items={Object.fromEntries(UNITS.map((item) => [item, item]))}
+              itemToStringLabel={(value) => (UNITS.includes(value as (typeof UNITS)[number]) ? String(value) : "Unidad")}
+            >
               <SelectTrigger id="product-unit" className="h-10 w-full">
-                <SelectValue />
+                <NamedSelectValue
+                  placeholder="Elige una unidad"
+                  labelFor={(value) => (UNITS.includes(value as (typeof UNITS)[number]) ? value : null)}
+                />
               </SelectTrigger>
               <SelectContent>
                 {UNITS.map((item) => (

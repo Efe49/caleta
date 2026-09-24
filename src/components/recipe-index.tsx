@@ -117,7 +117,7 @@ function NewCandleDialog({
         <DialogHeader>
           <DialogTitle>Nueva vela</DialogTitle>
           <DialogDescription>
-            Luego añades los materiales, el margen en porcentaje y el margen fijo en euros.
+            Luego añades los materiales y un solo margen: un porcentaje o un importe fijo.
           </DialogDescription>
         </DialogHeader>
         {error ? (

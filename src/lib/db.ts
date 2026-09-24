@@ -109,7 +109,7 @@ function seedIfEmpty(db: Database.Database) {
     );
     insertProduct.run("Lacre para el sello", empaquetado, "unidad", 2, 0.15, null);
 
-    const vela = Number(insertCandle.run("Vela de soja 200 ml", 40, 1.5).lastInsertRowid);
+    const vela = Number(insertCandle.run("Vela de soja 200 ml", 40, 0).lastInsertRowid);
     insertLine.run(vela, cera, 0.2);
     insertLine.run(vela, mecha, 0.15);
     insertLine.run(vela, vaso, 1);

@@ -29,9 +29,12 @@ export type LineBreakdown = {
   consumedInBatch: number;
 };
 
+export type MarginMode = "percent" | "fixed" | "none";
+
 export type CandleQuote = {
   maxCandles: number;
   unitCost: number;
+  marginMode: MarginMode;
   marginPercent: number;
   marginFixed: number;
   percentMarginAmount: number;
@@ -169,10 +172,23 @@ export function calculateCandle(input: {
     maxCandles = 0;
   }
 
-  const marginPercent = Number.isFinite(input.marginPercent) ? input.marginPercent : 0;
-  const marginFixed = Number.isFinite(input.marginFixed) ? input.marginFixed : 0;
-  const percentMarginAmount = unitCost * (marginPercent / 100);
-  const sellPrice = unitCost + percentMarginAmount + marginFixed;
+  const rawPercent = Number.isFinite(input.marginPercent) ? input.marginPercent : 0;
+  const rawFixed = Number.isFinite(input.marginFixed) ? input.marginFixed : 0;
+  let marginMode: MarginMode = "none";
+  let marginPercent = 0;
+  let marginFixed = 0;
+  let percentMarginAmount = 0;
+  let sellPrice = unitCost;
+  if (rawPercent > 0) {
+    marginMode = "percent";
+    marginPercent = rawPercent;
+    percentMarginAmount = unitCost * (rawPercent / 100);
+    sellPrice = unitCost + percentMarginAmount;
+  } else if (rawFixed > 0) {
+    marginMode = "fixed";
+    marginFixed = rawFixed;
+    sellPrice = unitCost + rawFixed;
+  }
   const requested = input.batchQuantity ?? 0;
   const safeRequested = Number.isFinite(requested) ? Math.floor(requested) : 0;
   const batchQuantity = Math.max(0, Math.min(safeRequested, maxCandles));
@@ -187,6 +203,7 @@ export function calculateCandle(input: {
   return {
     maxCandles,
     unitCost,
+    marginMode,
     marginPercent,
     marginFixed,
     percentMarginAmount,

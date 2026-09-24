@@ -19,16 +19,25 @@ export function QuotePanel({ quote }: { quote: CandleQuote }) {
 
       <dl className="grid gap-2 text-sm">
         <Row label="Coste" value={formatEuro(quote.unitCost)} />
-        <Row
-          label={`Margen ${formatNumber(quote.marginPercent, 2)} %`}
-          value={formatEuro(quote.percentMarginAmount)}
-        />
-        <Row label="Margen fijo" value={formatEuro(quote.marginFixed)} />
+        {quote.marginMode === "percent" ? (
+          <Row
+            label={`Margen ${formatNumber(quote.marginPercent, 2)} %`}
+            value={formatEuro(quote.percentMarginAmount)}
+          />
+        ) : null}
+        {quote.marginMode === "fixed" ? (
+          <Row label="Margen fijo" value={formatEuro(quote.marginFixed)} />
+        ) : null}
+        {quote.marginMode === "none" ? <Row label="Margen" value="Sin margen" /> : null}
         <Row label="Precio de venta" value={formatEuro(quote.sellPrice)} strong />
       </dl>
 
       <p className="text-xs leading-relaxed text-muted-foreground">
-        Precio = coste × (1 + margen %) + margen fijo.
+        {quote.marginMode === "percent"
+          ? "Precio = coste × (1 + margen %)."
+          : quote.marginMode === "fixed"
+            ? "Precio = coste + margen fijo."
+            : "Sin margen, el precio es el coste."}
       </p>
 
       {quote.lines.length > 0 ? (

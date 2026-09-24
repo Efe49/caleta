@@ -67,7 +67,7 @@ function quote(batchQuantity = 0, overrides: Partial<CalcProduct>[] = []) {
     products: next,
     lines,
     marginPercent: 40,
-    marginFixed: 1.5,
+    marginFixed: 0,
     batchQuantity,
   });
 }
@@ -76,9 +76,10 @@ describe("calculateCandle", () => {
   it("suma materiales consumidos y amortiza el equipo", () => {
     const result = quote();
     assert.ok(Math.abs(result.unitCost - 2.896) < 1e-9);
+    assert.equal(result.marginMode, "percent");
     assert.ok(Math.abs(result.percentMarginAmount - 1.1584) < 1e-9);
-    assert.equal(result.marginFixed, 1.5);
-    assert.ok(Math.abs(result.sellPrice - 5.5544) < 1e-9);
+    assert.equal(result.marginFixed, 0);
+    assert.ok(Math.abs(result.sellPrice - 4.0544) < 1e-9);
     assert.equal(result.maxCandles, 25);
     assert.equal(result.limitingProductName, "Cera de soja");
   });
@@ -94,7 +95,7 @@ describe("calculateCandle", () => {
     const result = quote(10);
     assert.equal(result.batchQuantity, 10);
     assert.ok(Math.abs(result.batchCost - 28.96) < 1e-9);
-    assert.ok(Math.abs(result.batchRevenue - 55.544) < 1e-8);
+    assert.ok(Math.abs(result.batchRevenue - 40.544) < 1e-8);
     const cera = result.lines.find((line) => line.productId === 2);
     const molde = result.lines.find((line) => line.productId === 1);
     assert.ok(cera);
@@ -107,6 +108,41 @@ describe("calculateCandle", () => {
   it("no deja pedir más velas de las que permite el stock", () => {
     const result = quote(80);
     assert.equal(result.batchQuantity, 25);
+  });
+
+  it("si hay porcentaje y margen fijo, usa solo el porcentaje", () => {
+    const result = calculateCandle({
+      products,
+      lines,
+      marginPercent: 40,
+      marginFixed: 1.5,
+    });
+    assert.equal(result.marginMode, "percent");
+    assert.equal(result.marginFixed, 0);
+    assert.ok(Math.abs(result.sellPrice - 4.0544) < 1e-9);
+  });
+
+  it("con solo margen fijo suma el importe al coste", () => {
+    const result = calculateCandle({
+      products,
+      lines,
+      marginPercent: 0,
+      marginFixed: 1.5,
+    });
+    assert.equal(result.marginMode, "fixed");
+    assert.equal(result.marginPercent, 0);
+    assert.ok(Math.abs(result.sellPrice - 4.396) < 1e-9);
+  });
+
+  it("sin margen el precio es el coste", () => {
+    const result = calculateCandle({
+      products,
+      lines,
+      marginPercent: 0,
+      marginFixed: 0,
+    });
+    assert.equal(result.marginMode, "none");
+    assert.ok(Math.abs(result.sellPrice - result.unitCost) < 1e-9);
   });
 
   it("no calcula capacidad si la receta no consume material", () => {

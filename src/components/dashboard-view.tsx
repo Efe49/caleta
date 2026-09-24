@@ -115,7 +115,7 @@ export function DashboardView({ data }: { data: Dashboard }) {
         <div>
           <h2 className="font-heading text-2xl">Velas</h2>
           <p className="text-sm text-muted-foreground">
-            El precio de venta es el coste de una vela, más el margen en porcentaje y un margen fijo en euros.
+            El precio de venta es el coste, más un margen en porcentaje o un importe fijo. No se suman los dos.
           </p>
         </div>
         {data.candles.length === 0 ? (
@@ -159,14 +159,24 @@ export function DashboardView({ data }: { data: Dashboard }) {
                       <dt className="text-muted-foreground">Coste</dt>
                       <dd className="font-medium">{formatEuro(candle.quote.unitCost)}</dd>
                     </div>
-                    <div>
-                      <dt className="text-muted-foreground">Margen {formatNumberPercent(candle.marginPercent)}</dt>
-                      <dd className="font-medium">{formatEuro(candle.quote.percentMarginAmount)}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted-foreground">Margen fijo</dt>
-                      <dd className="font-medium">{formatEuro(candle.marginFixed)}</dd>
-                    </div>
+                    {candle.quote.marginMode === "percent" ? (
+                      <div>
+                        <dt className="text-muted-foreground">Margen {formatNumberPercent(candle.quote.marginPercent)}</dt>
+                        <dd className="font-medium">{formatEuro(candle.quote.percentMarginAmount)}</dd>
+                      </div>
+                    ) : null}
+                    {candle.quote.marginMode === "fixed" ? (
+                      <div>
+                        <dt className="text-muted-foreground">Margen fijo</dt>
+                        <dd className="font-medium">{formatEuro(candle.quote.marginFixed)}</dd>
+                      </div>
+                    ) : null}
+                    {candle.quote.marginMode === "none" ? (
+                      <div>
+                        <dt className="text-muted-foreground">Margen</dt>
+                        <dd className="font-medium">Sin margen</dd>
+                      </div>
+                    ) : null}
                     <div>
                       <dt className="text-muted-foreground">Precio de venta</dt>
                       <dd className="font-medium">{formatEuro(candle.quote.sellPrice)}</dd>

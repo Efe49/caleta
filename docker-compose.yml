@@ -1,3 +1,5 @@
+name: alba
+
 services:
   alba:
     build: .
@@ -7,9 +9,21 @@ services:
       DATABASE_PATH: /app/data/alba.db
       HOSTNAME: 0.0.0.0
       PORT: "3000"
+      UPDATER_URL: http://updater:8091/update
     volumes:
       - alba-data:/app/data
     restart: unless-stopped
 
+  updater:
+    build: ./updater
+    environment:
+      CHECKOUT: /checkout
+      PORT: "8091"
+    volumes:
+      - .:/checkout
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
 volumes:
   alba-data:
+    name: alba-data
