@@ -1,10 +1,12 @@
-import { DashboardView } from "@/components/dashboard-view";
-import { getDb } from "@/lib/db";
-import { getDashboard } from "@/lib/queries";
+import type { Metadata } from "next";
+import { Game } from "@/components/pesca/game";
 
-export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: { absolute: "Caleta · Pesca en el muelle" },
+  description:
+    "Pesca en la caleta, mejora fuerza, suerte, paciencia y técnica, y compra cañas, cebos y caladeros nuevos.",
+};
 
 export default function HomePage() {
-  const data = getDashboard(getDb());
-  return <DashboardView data={data} />;
+  return <Game />;
 }

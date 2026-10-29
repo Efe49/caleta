@@ -7,7 +7,8 @@ import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 
 const links = [
-  { href: "/", label: "Tablero" },
+  { href: "/", label: "Caleta" },
+  { href: "/taller", label: "Tablero" },
   { href: "/almacen", label: "Almacén" },
   { href: "/recetas", label: "Recetas" },
 ];
@@ -44,7 +45,7 @@ export function SiteHeader() {
   return (
     <header className="border-b border-border/80 bg-card/90 backdrop-blur">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/taller" className="flex items-center gap-3">
           <span className="grid size-11 place-items-center rounded-full bg-primary font-heading text-lg text-primary-foreground shadow-sm">
             A
           </span>
@@ -55,7 +56,7 @@ export function SiteHeader() {
         </Link>
         <div className="flex flex-col gap-2 sm:items-end">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <nav className="grid grid-cols-3 gap-1 sm:flex" aria-label="Secciones">
+            <nav className="grid grid-cols-2 gap-1 sm:flex" aria-label="Secciones">
               {links.map((link) => {
                 const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
                 return (

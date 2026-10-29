@@ -9,7 +9,7 @@ export default function NotFound() {
         Esa página o esa receta no existe. Vuelve al tablero para seguir con el stock y las velas.
       </p>
       <div>
-        <Button className="h-10" render={<Link href="/" />}>
+        <Button className="h-10" render={<Link href="/taller" />}>
           Ir al tablero
         </Button>
       </div>

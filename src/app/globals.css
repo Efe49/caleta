@@ -128,3 +128,105 @@
     @apply font-sans;
   }
 }
+
+@keyframes caleta-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.caleta-drift {
+  animation: caleta-drift 14s linear infinite;
+}
+@keyframes caleta-bob {
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, 6px);
+  }
+}
+.caleta-bob {
+  animation: caleta-bob 2.4s ease-in-out infinite;
+}
+@keyframes caleta-dunk {
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+  35% {
+    transform: translate(-50%, 16px);
+  }
+  70% {
+    transform: translate(-50%, 4px);
+  }
+}
+.caleta-dunk {
+  animation: caleta-dunk 0.45s ease-in-out infinite;
+}
+@keyframes caleta-shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+.caleta-shrink {
+  width: 100%;
+  animation-name: caleta-shrink;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes caleta-gull {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(28px, -10px);
+  }
+  100% {
+    transform: translate(60px, 0);
+  }
+}
+.caleta-gull {
+  animation: caleta-gull 6s ease-in-out infinite;
+}
+@keyframes caleta-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.caleta-float {
+  animation: caleta-float 5s ease-in-out infinite;
+}
+@keyframes caleta-twinkle {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.caleta-twinkle {
+  animation: caleta-twinkle 2.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .caleta-drift,
+  .caleta-bob,
+  .caleta-dunk,
+  .caleta-gull,
+  .caleta-float,
+  .caleta-twinkle,
+  .caleta-shrink {
+    animation: none !important;
+  }
+}
